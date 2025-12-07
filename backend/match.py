@@ -170,12 +170,51 @@ def get_tfidf_similarity(text1, text2):
     except:
         return 0.0
 
+def calculate_experience_match(cv_exp, jd_exp):
+    """
+    Returns a score (0.0 to 1.0) based on experience level match.
+    """
+    if jd_exp == "Not Specified":
+        return 1.0 # No requirement means perfect match
+    if cv_exp == jd_exp:
+        return 1.0
+    
+    levels = ["Junior", "Mid-Level", "Senior"]
+    try:
+        cv_idx = levels.index(cv_exp)
+        jd_idx = levels.index(jd_exp)
+        diff = abs(cv_idx - jd_idx)
+        if diff == 1: return 0.5 # Close match (e.g. Mid vs Senior)
+        return 0.0 # Mismatch (e.g. Junior vs Senior)
+    except ValueError:
+        return 0.5 # Fallback if unknown format
+
+def calculate_education_match(cv_edu, jd_edu):
+    """
+    Returns score (0.0 to 1.0) based on degree overlap.
+    """
+    # jd_edu is a list like ['Bachelor\'s', 'Not Specified']
+    if "Not Specified" in jd_edu or not jd_edu:
+        return 1.0
+        
+    # Check if any CV qualification meets any JD requirement
+    # Simple strict string match for now
+    match_found = False
+    for req in jd_edu:
+        if req in cv_edu:
+            match_found = True
+            break
+    
+    return 1.0 if match_found else 0.0
+
 def calculate_cv_jd_match(cv_text, jd_text):
     """
     Advanced matching function combining:
     1. Semantic Similarity (spaCy)
     2. TF-IDF Similarity
     3. Skill Overlap
+    4. Experience Match
+    5. Education Match
     """
     if not cv_text or not jd_text:
         return {"match_percentage": 0, "details": "Empty text"}
@@ -183,6 +222,7 @@ def calculate_cv_jd_match(cv_text, jd_text):
     # 1. Experience Level
     cv_exp = detect_experience_level(cv_text)
     jd_exp = detect_experience_level(jd_text)
+    exp_score = calculate_experience_match(cv_exp, jd_exp)
 
     # 2. Skill Extraction
     cv_skills = extract_categorized_skills(cv_text)
@@ -197,36 +237,53 @@ def calculate_cv_jd_match(cv_text, jd_text):
     
     skill_match_ratio = len(common_skills) / len(jd_flat) if jd_flat else 0.0
 
-    # 3. Semantic & TF-IDF
+    # 3. Education Match
+    cv_edu = detect_education(cv_text)
+    jd_edu = detect_education(jd_text)
+    edu_score = calculate_education_match(cv_edu, jd_edu)
+
+    # 4. Semantic & TF-IDF
     semantic_score = get_semantic_similarity(cv_text, jd_text)
     tfidf_score = get_tfidf_similarity(cv_text, jd_text)
     
     # Weighted Final Score Logic
-    # If semantic score is very low but skills are high, it might be a model issue (no vectors).
-    # We dynamically adjust weights to avoid penalizing users without the large spaCy model.
+    # New Standard Config:
+    # Semantic: 30%, TF-IDF: 20%, Skills: 30%, Exp: 10%, Edu: 10%
     
-    # Check if we likely have valid vectors (heuristic: if simple texts match well, score should be high)
-    # If semantic_score is 0 or very low in a high-skill match, we trust skills/tfidf more.
-    
+    weights = {
+        "semantic": 0.30,
+        "tfidf": 0.20,
+        "skills": 0.30, 
+        "exp": 0.10,
+        "edu": 0.10
+    }
+
+    # Dynamic adjustment for missing vectors (Low Semantic but High Skills)
     if semantic_score < 0.1 and skill_match_ratio > 0.3:
-        # Fallback weights: Trust Skills and TF-IDF more
-        print("Warning: Low semantic score detected (possible missing vectors). Adjusting weights.")
-        weights = {"semantic": 0.0, "tfidf": 0.5, "skills": 0.5}
-    else:
-        # Standard weights
-        weights = {"semantic": 0.4, "tfidf": 0.3, "skills": 0.3}
+        print("Warning: Low semantic score detected. Adjusting weights.")
+        # Redistribute semantic weight to Skills and TF-IDF
+        weights = {
+            "semantic": 0.0,
+            "tfidf": 0.35,
+            "skills": 0.45,
+            "exp": 0.10,
+            "edu": 0.10
+        }
 
     final_score = (semantic_score * weights["semantic"]) + \
                   (tfidf_score * weights["tfidf"]) + \
-                  (skill_match_ratio * weights["skills"])
+                  (skill_match_ratio * weights["skills"]) + \
+                  (exp_score * weights["exp"]) + \
+                  (edu_score * weights["edu"])
     
-    # Cap at 1.0 (100%)
-    final_score = min(final_score, 1.0)
+    # Dampen 100% and invalid 0%
+    # Ensure a small baseline for document structure match if non-empty
+    if final_score < 0.05: final_score = 0.05
+    if final_score > 0.98: final_score = 0.98 
     
     # Confidence Score (based on agreement between semantic and TF-IDF)
-    # If they are close, high confidence. If divergent, lower confidence.
     divergence = abs(semantic_score - tfidf_score)
-    confidence = 1.0 - divergence  # Simple heuristic
+    confidence = 1.0 - divergence
 
     return {
         "match_percentage": round(final_score * 100, 2),
