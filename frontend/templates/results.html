@@ -41,6 +41,19 @@
                         <canvas id="scoreChart"></canvas>
                         <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
                             <h1 class="display-4 fw-bold mb-0">{{ results.match_percentage }}%</h1>
+                            {% if results.match_percentage >= 70 %}
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 mt-2 rounded-pill">High
+                                Match</span>
+                            {% elif results.match_percentage >= 40 %}
+                            <span
+                                class="badge bg-warning bg-opacity-10 text-warning border border-warning px-3 py-2 mt-2 rounded-pill">Medium
+                                Match</span>
+                            {% else %}
+                            <span
+                                class="badge bg-danger bg-opacity-10 text-danger border border-danger px-3 py-2 mt-2 rounded-pill">Low
+                                Match</span>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -67,16 +80,15 @@
 
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <div class="p-3 bg-white rounded-3 border">
-                                <small class="text-muted text-uppercase fw-bold">Experience Level</small>
-                                <div class="d-flex justify-content-between align-items-center mt-2">
-                                    <span>Candidate</span>
+                            <div class="p-3 bg-white rounded-3 border h-100">
+                                <small class="text-muted text-uppercase fw-bold">Qualifications & Experience</small>
+                                <div class="d-flex justify-content-between align-items-center mt-2 border-bottom pb-2">
+                                    <span>Experience</span>
                                     <span class="badge bg-primary rounded-pill">{{ results.experience_level.cv }}</span>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center mt-1">
-                                    <span>Required</span>
-                                    <span class="badge bg-secondary rounded-pill">{{ results.experience_level.jd
-                                        }}</span>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span>Education</span>
+                                    <span class="fw-bold text-dark">{{ results.education.cv | join(', ') }}</span>
                                 </div>
                             </div>
                         </div>
@@ -118,9 +130,15 @@
                                     class="bi bi-exclamation-circle-fill me-1"></i>{{ skill }}</span>
                             {% endfor %}
 
-                            {% if not (results.skills.matched|select("in",
-                            results.skills.cv_categorized.technical)|list) and not (results.skills.missing|select("in",
-                            results.skills.jd_categorized.technical)|list) %}
+                            <!-- Simple check: if technical list in JD is empty, and we found no tech skills in CV that match -->
+                            {% set has_tech_reqs = results.skills.jd_categorized.technical %}
+                            {% set has_tech_matches = [] %}
+                            {% for skill in results.skills.matched if skill in results.skills.cv_categorized.technical
+                            %}
+                            {% set _ = has_tech_matches.append(1) %}
+                            {% endfor %}
+
+                            {% if not has_tech_reqs and not has_tech_matches %}
                             <span class="text-muted small fst-italic">No specific technical requirements found.</span>
                             {% endif %}
                         </div>
@@ -190,7 +208,8 @@
 
     <script>
         const ctx = document.getElementById('scoreChart').getContext('2d');
-        const score = {{ results.match_percentage }};
+        // Use parseFloat with quotes to prevent IDE syntax errors with Jinja
+        const score = parseFloat("{{ results.match_percentage | default(0) }}");
         const color = score >= 70 ? '#10B981' : (score >= 40 ? '#F59E0B' : '#EF4444');
 
         new Chart(ctx, {
