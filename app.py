@@ -1,11 +1,13 @@
+import sys
 import os
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from werkzeug.utils import secure_filename
 from match import read_file, calculate_cv_jd_match
 
-# Adjust paths to point to frontend folder (sibling to backend)
+# Adjust paths to point to frontend folder
 base_dir = os.path.dirname(os.path.abspath(__file__))
-frontend_dir = os.path.join(base_dir, '..', 'frontend')
+frontend_dir = os.path.join(base_dir, 'frontend')
 template_dir = os.path.abspath(os.path.join(frontend_dir, 'templates'))
 static_dir = os.path.abspath(os.path.join(frontend_dir, 'static'))
 
@@ -101,4 +103,5 @@ def api_match():
         return jsonify({"error": "Invalid file type"}), 400
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    port = int(os.environ.get('PORT', 5001))
+    app.run(host='0.0.0.0', port=port)
