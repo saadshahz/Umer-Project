@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Match AI</title>
+    <title>AI CV Assistant - Smart Screening</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -25,56 +25,85 @@
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="bi bi-robot me-2"></i>HR Match AI
+                <i class="bi bi-cpu-fill me-2"></i>AI CV Assistant
             </a>
         </div>
     </nav>
 
-    <div class="container d-flex flex-column justify-content-center min-vh-100">
+    <div class="container d-flex flex-column justify-content-center min-vh-100 py-5">
+        <div class="row align-items-center g-5">
+            <!-- Left Side: Hero Text -->
+            <div class="col-lg-5 text-start">
+                <div class="hero-section text-start p-0 mb-4">
+                    <span
+                        class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 mb-3 px-3 py-2 rounded-pill">
+                        <i class="bi bi-stars me-2"></i>Next Gen Hiring
+                    </span>
+                    <h1 class="hero-title mb-4" style="font-size: 3.5rem; line-height: 1.1;">
+                        See the <br>
+                        <span class="text-gradient">Perfect Match</span>
+                    </h1>
+                    <p class="lead text-secondary mb-4" style="max-width: 400px;">
+                        AI CV Assistant uses advanced AI to visualize the compatibility between candidates and job
+                        descriptions instantly.
+                    </p>
+                    <div class="d-flex gap-3">
+                        <div class="d-flex align-items-center text-light">
+                            <i class="bi bi-check-circle-fill text-primary me-2"></i> Instant Analysis
+                        </div>
+                        <div class="d-flex align-items-center text-light">
+                            <i class="bi bi-check-circle-fill text-primary me-2"></i> Deep Learning
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="hero-section">
-            <h1 class="hero-title">Smart Resume Screening</h1>
-            <p class="lead" style="color: rgba(255,255,255,0.8);">AI-powered semantic matching with deep learning
-                insights.</p>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
+            <!-- Right Side: Upload Form -->
+            <div class="col-lg-7">
                 <div class="glass-card">
                     <form method="post" enctype="multipart/form-data" id="uploadForm">
-                        <div class="row g-5">
+                        <div class="row g-4">
                             <!-- CV Upload -->
                             <div class="col-md-6">
-                                <h5 class="mb-3 fw-bold"><i class="bi bi-file-earmark-person me-2"></i>Candidate CV</h5>
-                                <div class="upload-zone" id="cv-zone">
-                                    <i class="bi bi-cloud-arrow-up upload-icon"></i>
-                                    <p class="mb-1 fw-bold">Drop CV here</p>
-                                    <p class="text-muted small">PDF, DOCX, TXT</p>
+                                <div class="upload-zone h-100 d-flex flex-column justify-content-center" id="cv-zone">
+                                    <div class="mb-3">
+                                        <div class="icon-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center rounded-circle"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-file-earmark-person fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Upload CV</h6>
+                                    <p class="text-muted small mb-3">Drop resume file here</p>
                                     <input type="file" name="cv" id="cv" class="d-none" accept=".pdf,.docx,.txt">
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2"
-                                        onclick="document.getElementById('cv').click()">Browse Files</button>
-                                    <div id="cv-name" class="mt-2 text-success small fw-bold"></div>
+                                    <button type="button" class="btn btn-sm btn-outline-light w-100"
+                                        onclick="document.getElementById('cv').click()">Select File</button>
+                                    <div id="cv-name" class="mt-2 text-primary small fw-semibold text-truncate"></div>
                                 </div>
                             </div>
 
                             <!-- JD Upload -->
                             <div class="col-md-6">
-                                <h5 class="mb-3 fw-bold"><i class="bi bi-briefcase me-2"></i>Job Description</h5>
-                                <div class="upload-zone" id="jd-zone">
-                                    <i class="bi bi-cloud-upload upload-icon"></i>
-                                    <p class="mb-1 fw-bold">Drop JD here</p>
-                                    <p class="text-muted small">PDF, DOCX, TXT</p>
+                                <div class="upload-zone h-100 d-flex flex-column justify-content-center" id="jd-zone">
+                                    <div class="mb-3">
+                                        <div class="icon-circle bg-secondary bg-opacity-10 text-secondary d-inline-flex align-items-center justify-content-center rounded-circle"
+                                            style="width: 50px; height: 50px;">
+                                            <i class="bi bi-briefcase fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <h6 class="fw-bold mb-1">Job Description</h6>
+                                    <p class="text-muted small mb-3">Drop JD file here</p>
                                     <input type="file" name="jd" id="jd" class="d-none" accept=".pdf,.docx,.txt">
-                                    <button type="button" class="btn btn-sm btn-outline-primary mt-2"
-                                        onclick="document.getElementById('jd').click()">Browse Files</button>
-                                    <div id="jd-name" class="mt-2 text-success small fw-bold"></div>
+                                    <button type="button" class="btn btn-sm btn-outline-light w-100"
+                                        onclick="document.getElementById('jd').click()">Select File</button>
+                                    <div id="jd-name" class="mt-2 text-primary small fw-semibold text-truncate"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="text-center mt-5">
-                            <button type="submit" class="btn btn-primary-gradient px-5 py-3 fs-5">
-                                <i class="bi bi-stars me-2"></i>Analyze Compatibility
+                        <div class="mt-4 pt-3 border-top border-white border-opacity-10">
+                            <button type="submit"
+                                class="btn btn-primary-gradient w-100 py-3 fs-6 text-uppercase letter-spacing-1">
+                                <i class="bi bi-lightning-charge-fill me-2"></i>Analyze Compatibility
                             </button>
                         </div>
                     </form>

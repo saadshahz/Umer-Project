@@ -24,7 +24,7 @@
     <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="bi bi-robot me-2"></i>HR Match AI
+                <i class="bi bi-cpu-fill me-2"></i>AI CV Assistant
             </a>
             <a href="/" class="btn btn-sm btn-outline-dark rounded-pill px-3">New Analysis</a>
         </div>
@@ -80,7 +80,7 @@
 
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <div class="p-3 bg-white rounded-3 border h-100">
+                            <div class="p-3 rounded-3 border h-100 feature-card">
                                 <small class="text-muted text-uppercase fw-bold">Qualifications & Experience</small>
                                 <div class="d-flex justify-content-between align-items-center mt-2 border-bottom pb-2">
                                     <span>Experience</span>
@@ -88,12 +88,12 @@
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     <span>Education</span>
-                                    <span class="fw-bold text-dark">{{ results.education.cv | join(', ') }}</span>
+                                    <span class="fw-bold">{{ results.education.cv | join(', ') }}</span>
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="p-3 bg-white rounded-3 border">
+                            <div class="p-3 rounded-3 border feature-card">
                                 <small class="text-muted text-uppercase fw-bold">Keyword Overlap</small>
                                 <div class="d-flex justify-content-between align-items-center mt-2">
                                     <span>Matched</span>
@@ -201,9 +201,9 @@
     </div>
 
     <footer class="text-center py-4 mt-5" style="color: rgba(0,0,0,0.4); font-size: 0.9rem;">
-        <div class="container">
-            <span>Powered by <strong>Abdul Samad</strong></span>
-        </div>
+        <!-- <div class="container">
+            <span>Powered by <strong>Umer Zafar</strong></span>
+        </div> -->
     </footer>
 
     <script>
@@ -211,6 +211,7 @@
         // Use parseFloat with quotes to prevent IDE syntax errors with Jinja
         const score = parseFloat("{{ results.match_percentage | default(0) }}");
         const color = score >= 70 ? '#10B981' : (score >= 40 ? '#F59E0B' : '#EF4444');
+        const emptyColor = 'rgba(255, 255, 255, 0.1)'; // Dark theme empty track
 
         new Chart(ctx, {
             type: 'doughnut',
@@ -218,7 +219,7 @@
                 labels: ['Match', 'Gap'],
                 datasets: [{
                     data: [score, 100 - score],
-                    backgroundColor: [color, '#E5E7EB'],
+                    backgroundColor: [color, emptyColor],
                     borderWidth: 0,
                     cutout: '80%'
                 }]

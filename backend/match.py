@@ -4,9 +4,10 @@ import os
 import logging
 import pdfplumber
 import docx
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+# numpy and sklearn will be imported lazily
+# import numpy as np
+# from sklearn.feature_extraction.text import TfidfVectorizer
+# from sklearn.metrics.pairwise import cosine_similarity
 
 # Try importing spacy
 try:
@@ -164,10 +165,18 @@ def get_tfidf_similarity(text1, text2):
     Calculates TF-IDF Cosine Similarity.
     """
     try:
+        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.metrics.pairwise import cosine_similarity
+        import numpy as np
+        
         vectorizer = TfidfVectorizer(stop_words='english')
         tfidf_matrix = vectorizer.fit_transform([text1, text2])
         return cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:2])[0][0]
-    except:
+    except ImportError:
+        print("Warning: scikit-learn or numpy not installed. Returning 0.0 for TF-IDF.")
+        return 0.0
+    except Exception as e:
+        print(f"Error in TF-IDF: {e}")
         return 0.0
 
 def calculate_experience_match(cv_exp, jd_exp):

@@ -17,7 +17,12 @@ app = Flask(__name__,
             static_folder=static_dir)
 
 app.secret_key = 'supersecretkey'  # Change this in production
-app.config['UPLOAD_FOLDER'] = 'uploads'
+# Check if running on Vercel
+if os.environ.get('VERCEL'):
+    app.config['UPLOAD_FOLDER'] = '/tmp'
+else:
+    app.config['UPLOAD_FOLDER'] = 'uploads'
+
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB limit
 app.config['ALLOWED_EXTENSIONS'] = {'txt', 'pdf', 'docx'}
 
